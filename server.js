@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: 8081 });
 
 const channels = {}; // Objeto para almacenar canales y sus conexiones
 
