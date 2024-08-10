@@ -8,7 +8,6 @@ const writeInLogFile=(message)=>{
     const logMessage = `${date.toISOString()} - ${message}\n`;
     fs.appendFile('log.txt', logMessage, function (err) {
         if (err) throw err;
-        console.log('Created!');
         });
 }
 // Función para suscribirse a un canal específico
