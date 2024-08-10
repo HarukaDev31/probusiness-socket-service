@@ -2,7 +2,13 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8081 });
 
 const channels = {}; // Objeto para almacenar canales y sus conexiones
-
+const writeInLogFile=(message)=>{
+    const fs = require('fs');
+    fs.appendFile('log.txt', message, function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+        });
+}
 // Función para suscribirse a un canal específico
 function subscribe(ws, channel) {
     try {
@@ -11,7 +17,7 @@ function subscribe(ws, channel) {
         }
         channels[channel].add(ws);
     } catch (error) {
-        console.error(`Error subscribing to channel ${channel}:`, error);
+        writeInLogFile(`Error subscribing to channel ${channel}: ${error}`);
     }
 }
 
@@ -25,7 +31,7 @@ function unsubscribe(ws, channel) {
             }
         }
     } catch (error) {
-        console.error(`Error unsubscribing from channel ${channel}:`, error);
+        writeInLogFile(`Error unsubscribing from channel ${channel}: ${error}`);
     }
 }
 
@@ -46,8 +52,7 @@ wss.on('connection', (ws) => {
                 subscribe(ws, projectChannel);
                 subscribe(ws, roleChannel);
                 subscribe(ws, userChannel);
-
-                console.log(`Client subscribed to channels: ${projectChannel}, ${roleChannel}, ${userChannel}`);
+                writeInLogFile(`Client subscribed to channels: ${projectChannel}, ${roleChannel}, ${userChannel}`);
             }
 
             // Manejar el envío de mensajes a un canal
@@ -64,26 +69,25 @@ wss.on('connection', (ws) => {
                                 try {
                                     client.send(message);
                                 } catch (sendError) {
-                                    console.error(`Error sending message to client in channel ${channel}:`, sendError);
+                                    writeInLogFile(`Error sending message to channel ${channel}: ${sendError}`);
                                 }
                             }
                         });
-                        console.log(`Message sent to channel: ${channel}`);
+                        writeInLogFile(`Message sent to channel ${channel}: ${message}`);
                     }
                 });
             }
         } catch (error) {
-            console.error('Error processing message:', error);
+            writeInLogFile(`Error parsing message: ${error}`);
         }
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
-        // Eliminar el cliente de todos los canales a los que estaba suscrito
+        writeInLogFile('Client disconnected');
         Object.keys(channels).forEach(channel => {
             unsubscribe(ws, channel);
         });
     });
 });
 
-console.log('WebSocket server started on ws://localhost:8081');
+writeInLogFile('Server started');
