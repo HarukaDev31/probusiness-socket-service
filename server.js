@@ -4,9 +4,11 @@ const wss = new WebSocket.Server({ port: 8081 });
 const channels = {}; // Objeto para almacenar canales y sus conexiones
 const writeInLogFile=(message)=>{
     const fs = require('fs');
-    fs.appendFile('log.txt', message, function (err) {
+    const date = new Date();
+    const logMessage = `${date.toISOString()} - ${message}\n`;
+    fs.appendFile('log.txt', logMessage, function (err) {
         if (err) throw err;
-        console.log('Saved!');
+        console.log('Created!');
         });
 }
 // Función para suscribirse a un canal específico
@@ -36,7 +38,7 @@ function unsubscribe(ws, channel) {
 }
 
 wss.on('connection', (ws) => {
-    console.log('Client connected');
+    writeInLogFile('Client connected');
 
     ws.on('message', (message) => {
         try {
